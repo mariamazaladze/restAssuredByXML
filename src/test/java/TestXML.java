@@ -5,6 +5,8 @@ import io.restassured.http.ContentType;
 import io.restassured.internal.path.xml.NodeChildrenImpl;
 import io.restassured.mapper.ObjectMapperType;
 
+import io.restassured.path.xml.XmlPath;
+import io.restassured.response.Response;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -26,46 +28,60 @@ public class TestXML {
 
     @Test
     void countNames() {
-        int countNames = RestAssured
+        Response response = RestAssured
                 .get("/ListOfContinentsByName")
-                .then().extract()
-                .path("ArrayOftContinent.tContinent.sName.size()");
+                .then().extract().response();
 
-        Assert.assertEquals(6, countNames);
-        System.out.println("countName : "+ countNames );
+        XmlPath xmlPath=response.xmlPath();
+        int countName= xmlPath.getInt("ArrayOftContinent.tContinent.sName.size()");
+        System.out.println(countName);
+        Assert.assertEquals(6,countName);
     }
 
     @Test
     void getAllNamesValue() {
-        NodeChildrenImpl namesList =RestAssured
+        String namesList = given().when()
                 .get("/ListOfContinentsByName")
-                .then().extract()
-                .path("ArrayOftContinent.tContinent.sName");
+                .then().extract().asString();
 
-        List<String> constantList= Arrays.asList("Africa","Antarctica","Asia","Europe","Ocenania","The Americas");
-        Assert.assertEquals(constantList,namesList);
-        System.out.println(namesList.getNodeList());
+        XmlPath xmlPath = new XmlPath(namesList);
+        List<String> responsNameList = xmlPath.getList("ArrayOftContinent.tContinent.sName");
+        List<String> constantList = Arrays.asList("Africa", "Antarctica", "Asia", "Europe", "Ocenania", "The Americas");
+
+        System.out.println("respons namelists : " +responsNameList);
+        System.out.println("constant list : " + constantList);
+
+        Assert.assertEquals(responsNameList, constantList);
+
+
     }
 
     @Test
     public void getName_AN() {
-        String nameAN = RestAssured
+        Response response = RestAssured
                 .get("/ListOfContinentsByName")
-                .then().extract()
-                .path("ArrayOftContinent.tContinent.findAll{it.sCode=='AN'}.sName");
+                .then().extract().response();
 
-        Assert.assertEquals("Antarctica", nameAN);
+        XmlPath xmlPath=response.xmlPath();
+        String nameAN= xmlPath.getString("ArrayOftContinent.tContinent.findAll{it.sCode=='AN'}.sName");
         System.out.println(nameAN);
+        Assert.assertEquals("Antarctica", nameAN);
     }
 
     @Test
     public void lastContinetnName() {
-        String lastName = RestAssured
+
+        Response response  = RestAssured
                 .get("/ListOfContinentsByName")
-                .then().extract()
-                .path("ArrayOftContinent.tContinent[-1].sName");
+                .then().extract().response();
+
+        XmlPath xmlPath=response.xmlPath();
+        String lastName=xmlPath.getString("ArrayOftContinent.tContinent[-1].sName");
         Assert.assertEquals("The Americas", lastName);
         System.out.println(lastName);
+
+
+
 
     }
 

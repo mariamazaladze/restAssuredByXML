@@ -44,7 +44,7 @@ public class TestXML {
 
         List<String> constantList= Arrays.asList("Africa","Antarctica","Asia","Europe","Ocenania","The Americas");
         Assert.assertEquals(constantList,namesList);
-        System.out.println(namesList);
+        System.out.println(namesList.getNodeList());
     }
 
     @Test
